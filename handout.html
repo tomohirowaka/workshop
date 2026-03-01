@@ -1,0 +1,470 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>識学 × EVeM ハイブリッドマネジメント — 配布資料</title>
+<style>
+  *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+  :root {
+    --shikigaku: #1a365d;
+    --evem: #065f46;
+    --igi: #c2410c;
+    --bg: #fafaf9;
+    --text: #1c1917;
+    --text-light: #57534e;
+    --border: #e7e5e4;
+    --font: "Yu Gothic", "Hiragino Sans", "Noto Sans JP", sans-serif;
+  }
+
+  html { font-size: 15px; }
+
+  body {
+    font-family: var(--font);
+    color: var(--text);
+    background: var(--bg);
+    line-height: 1.7;
+  }
+
+  .page {
+    max-width: 720px;
+    margin: 0 auto;
+    padding: 40px 32px;
+  }
+
+  /* Header */
+  .doc-header {
+    text-align: center;
+    margin-bottom: 32px;
+    padding-bottom: 24px;
+    border-bottom: 3px solid var(--text);
+  }
+
+  .doc-header .label {
+    display: inline-block;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 2px;
+    color: var(--evem);
+    margin-bottom: 8px;
+  }
+
+  .doc-header h1 {
+    font-size: 24px;
+    font-weight: 700;
+    line-height: 1.4;
+    margin-bottom: 4px;
+  }
+
+  .doc-header .sub {
+    font-size: 14px;
+    color: var(--text-light);
+  }
+
+  /* Section */
+  section {
+    margin-bottom: 28px;
+  }
+
+  section h2 {
+    font-size: 17px;
+    font-weight: 700;
+    padding: 8px 14px;
+    border-radius: 6px;
+    margin-bottom: 14px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .h2-shikigaku { background: #dbeafe; color: var(--shikigaku); }
+  .h2-evem { background: #d1fae5; color: var(--evem); }
+  .h2-igi { background: #ffedd5; color: var(--igi); }
+  .h2-source { background: #e7e5e4; color: var(--text); }
+
+  /* 3-Layer Mini Diagram */
+  .mini-layers {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    margin-bottom: 16px;
+  }
+
+  .mini-layer {
+    padding: 10px 16px;
+    border-radius: 8px;
+    color: #fff;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    font-size: 13px;
+  }
+
+  .mini-layer strong {
+    min-width: 140px;
+    font-size: 14px;
+  }
+
+  .ml-igi { background: linear-gradient(135deg, #ea580c, #c2410c); }
+  .ml-evem { background: linear-gradient(135deg, #059669, #065f46); }
+  .ml-shikigaku { background: linear-gradient(135deg, #2563eb, #1a365d); }
+
+  /* Term table */
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 12px;
+    font-size: 14px;
+  }
+
+  th, td {
+    padding: 8px 12px;
+    border-bottom: 1px solid var(--border);
+    text-align: left;
+    vertical-align: top;
+  }
+
+  th {
+    font-weight: 700;
+    font-size: 12px;
+    color: var(--text-light);
+    letter-spacing: 0.5px;
+    border-bottom: 2px solid var(--border);
+    white-space: nowrap;
+  }
+
+  td:first-child {
+    font-weight: 700;
+    white-space: nowrap;
+    min-width: 140px;
+  }
+
+  tr:last-child td { border-bottom: none; }
+
+  .tag {
+    display: inline-block;
+    font-size: 10px;
+    font-weight: 700;
+    color: #fff;
+    padding: 1px 7px;
+    border-radius: 4px;
+    margin-right: 4px;
+    vertical-align: middle;
+  }
+
+  .tag-s { background: var(--shikigaku); }
+  .tag-e { background: var(--evem); }
+  .tag-i { background: var(--igi); }
+  .tag-p { background: #7c3aed; }
+
+  /* 6 Principles */
+  .principles {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 12px;
+    margin-bottom: 12px;
+  }
+
+  .principle-box {
+    padding: 14px;
+    border-radius: 10px;
+    background: #fff;
+    border: 1px solid var(--border);
+  }
+
+  .principle-box h3 {
+    font-size: 14px;
+    margin-bottom: 8px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .principle-box ul {
+    list-style: none;
+    padding: 0;
+    font-size: 13px;
+    color: var(--text-light);
+  }
+
+  .principle-box li {
+    padding: 3px 0;
+  }
+
+  .principle-box li .num {
+    display: inline-block;
+    font-size: 10px;
+    font-weight: 700;
+    color: #fff;
+    border-radius: 3px;
+    padding: 0 5px;
+    margin-right: 4px;
+  }
+
+  /* Source list */
+  .source-item {
+    padding: 10px 14px;
+    background: #fff;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    margin-bottom: 8px;
+  }
+
+  .source-item .title {
+    font-weight: 700;
+    font-size: 14px;
+    margin-bottom: 2px;
+  }
+
+  .source-item .author {
+    font-size: 13px;
+    color: var(--text-light);
+  }
+
+  .source-item .note {
+    font-size: 12px;
+    color: #a8a29e;
+    margin-top: 4px;
+  }
+
+  /* Note box */
+  .note-box {
+    padding: 14px 18px;
+    background: #fffbeb;
+    border-left: 4px solid #f59e0b;
+    border-radius: 0 8px 8px 0;
+    font-size: 13px;
+    color: var(--text);
+    margin-bottom: 16px;
+    line-height: 1.8;
+  }
+
+  /* Footer */
+  .doc-footer {
+    text-align: center;
+    padding-top: 20px;
+    border-top: 1px solid var(--border);
+    font-size: 12px;
+    color: #a8a29e;
+    margin-top: 8px;
+  }
+
+  /* Print */
+  @media print {
+    html { font-size: 13px; }
+    body { background: #fff; }
+    .page { padding: 20px 16px; max-width: none; }
+    .doc-header { margin-bottom: 20px; padding-bottom: 16px; }
+    section { margin-bottom: 18px; }
+    .principles { gap: 8px; }
+    .source-item { padding: 8px 10px; margin-bottom: 6px; }
+    .mini-layer { padding: 8px 12px; }
+  }
+
+  @page {
+    size: A4;
+    margin: 15mm;
+  }
+</style>
+</head>
+<body>
+
+<div class="page">
+
+  <div class="doc-header">
+    <span class="label">HANDOUT</span>
+    <h1>識学 &times; EVeM ハイブリッドマネジメント</h1>
+    <p class="sub">配布資料 &mdash; 大竹智博 &mdash; 2026.3.5</p>
+  </div>
+
+  <!-- ===== 3-Layer Overview ===== -->
+  <section>
+    <h2 class="h2-igi">&#9632; 3層構造の全体像</h2>
+    <div class="mini-layers">
+      <div class="mini-layer ml-igi">
+        <strong>【意義層】エネルギー</strong>
+        <span>なぜやるのか &mdash; チームを動かす源泉</span>
+      </div>
+      <div class="mini-layer ml-evem">
+        <strong>【EVeM層】技術</strong>
+        <span>どうやるか &mdash; 60の型で設計する</span>
+      </div>
+      <div class="mini-layer ml-shikigaku">
+        <strong>【識学層】秩序</strong>
+        <span>守るべきもの &mdash; 位置・ルール・結果</span>
+      </div>
+    </div>
+    <div class="note-box">
+      識学で「何を守るか」を決め、EVeMで「どうやるか」を設計し、意義で「なぜやるか」のエネルギーを生む。<br>
+      3つの層が揃って初めて、マネジメントが機能する。
+    </div>
+  </section>
+
+  <!-- ===== 識学用語 ===== -->
+  <section>
+    <h2 class="h2-shikigaku">&#9632; 識学（しきがく）の用語</h2>
+    <table>
+      <tr><th>用語</th><th>意味</th></tr>
+      <tr>
+        <td><span class="tag tag-s">識学</span>位置の明確化</td>
+        <td>組織の中で「誰が決める人か」を曖昧にしない。指揮命令系統が組織の安全を守る</td>
+      </tr>
+      <tr>
+        <td><span class="tag tag-s">識学</span>ルールの絶対性</td>
+        <td>ルールに例外を認めない。感染対策・医療安全のように「破ったら事故」の領域で特に重要</td>
+      </tr>
+      <tr>
+        <td><span class="tag tag-s">識学</span>結果評価（可/不可）</td>
+        <td>評価は「できた」か「できなかった」の二択。感情に左右されない公平な基準</td>
+      </tr>
+    </table>
+  </section>
+
+  <!-- ===== EVeM用語 ===== -->
+  <section>
+    <h2 class="h2-evem">&#9632; EVeM（エモ）の用語</h2>
+    <table>
+      <tr><th>用語</th><th>意味</th></tr>
+      <tr>
+        <td><span class="tag tag-e">EVeM</span>60の型（かた）</td>
+        <td>マネジメント技術のカタログ。状況に応じて必要な型を引き出して使う。全部覚える必要はない</td>
+      </tr>
+      <tr>
+        <td><span class="tag tag-e">EVeM</span>GPKa</td>
+        <td><strong>G</strong>oal（目標）&rarr; <strong>P</strong>olicy（方針）&rarr; <strong>K</strong>ey Driver（重点指標）&rarr; <strong>a</strong>ction（行動）。チーム運営の基本フレームワーク</td>
+      </tr>
+      <tr>
+        <td><span class="tag tag-e">EVeM</span>関与方針4象限</td>
+        <td>メンバーを「スキル &times; 意欲」の2軸で分類し、タイプ別に関わり方を変える考え方</td>
+      </tr>
+      <tr>
+        <td><span class="tag tag-e">EVeM</span>育成の4段階</td>
+        <td>共同ワーク &rarr; トライ &rarr; 定点確認 &rarr; お任せ。段階的に手を離していくプロセス</td>
+      </tr>
+      <tr>
+        <td><span class="tag tag-e">EVeM</span>モメンタム</td>
+        <td>チームの「勢い」。小さな成功体験を積み上げてチームのエネルギーを維持する技術</td>
+      </tr>
+      <tr>
+        <td><span class="tag tag-e">EVeM</span>意義の3軸</td>
+        <td>チームの存在意義を<strong>社会軸</strong>（社会への価値）・<strong>市場軸</strong>（競争優位）・<strong>自者軸</strong>（ありたい姿）の3方向で言語化する</td>
+      </tr>
+      <tr>
+        <td><span class="tag tag-e">型34</span>業務整理</td>
+        <td>「重要度 &times; 自分が関与した時の成果インパクト」で業務を仕分け、両方高いものだけに集中する</td>
+      </tr>
+    </table>
+  </section>
+
+  <!-- ===== その他の用語 ===== -->
+  <section>
+    <h2 class="h2-igi">&#9632; その他の用語</h2>
+    <table>
+      <tr><th>用語</th><th>意味</th></tr>
+      <tr>
+        <td><span class="tag tag-i">心理</span>STARSモデル</td>
+        <td>組織の状態を5つに分類するフレームワーク。<strong>S</strong>tart-up（立ち上げ）/ <strong>T</strong>urnaround（立て直し）/ <strong>A</strong>ccelerated growth（急成長）/ <strong>R</strong>ealignment（再編）/ <strong>S</strong>ustaining success（維持）。状態に応じて関与度を変える</td>
+      </tr>
+      <tr>
+        <td><span class="tag tag-i">ツール</span>マネ型サーチBox</td>
+        <td>課題が発生したとき、「誰が &rarr; 何が起きた &rarr; チーム影響 &rarr; 自責要因 &rarr; 使う型」の順で書き出す仕分けシート。大竹が日常で使用</td>
+      </tr>
+    </table>
+  </section>
+
+  <!-- ===== 6 Principles ===== -->
+  <section>
+    <h2 class="h2-evem">&#9632; 大竹の6原則</h2>
+    <div class="principles">
+      <div class="principle-box" style="border-top: 3px solid var(--evem);">
+        <h3><span style="color:var(--evem);">&#9632;</span> 信じる</h3>
+        <ul>
+          <li><span class="num" style="background:var(--evem);">#20</span>みんな頑張ろうとしている</li>
+          <li><span class="num" style="background:var(--evem);">#19</span>どんな人にも才能がある</li>
+        </ul>
+      </div>
+      <div class="principle-box" style="border-top: 3px solid var(--shikigaku);">
+        <h3><span style="color:var(--shikigaku);">&#9632;</span> 自分で語る</h3>
+        <ul>
+          <li><span class="num" style="background:var(--shikigaku);">#9</span>伝書鳩にならない</li>
+          <li><span class="num" style="background:var(--shikigaku);">#11</span>成果に繋がることだけ指摘</li>
+        </ul>
+      </div>
+      <div class="principle-box" style="border-top: 3px solid #dc2626;">
+        <h3><span style="color:#dc2626;">&#9632;</span> 絶対やらない</h3>
+        <ul>
+          <li><span class="num" style="background:#dc2626;">#26</span>陰口を言わない</li>
+          <li><span class="num" style="background:#dc2626;">#34</span>情報マウント取らない</li>
+          <li><span class="num" style="background:#dc2626;">#33</span>任せたことをひっくり返さない</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== 心理学・理論の出典 ===== -->
+  <section>
+    <h2 class="h2-source">&#9632; 心理学・理論の出典</h2>
+
+    <div class="source-item">
+      <div class="title"><span class="tag tag-p">心理学</span>ピグマリオン効果（Pygmalion Effect）</div>
+      <div class="author">Rosenthal, R., &amp; Jacobson, L. (1968). <em>Pygmalion in the Classroom: Teacher Expectation and Pupils' Intellectual Development</em>. Holt, Rinehart &amp; Winston.</div>
+      <div class="note">教師が「この生徒は伸びる」と期待すると、実際に成績が向上した実験。上司の期待がメンバーのパフォーマンスを引き上げる根拠。</div>
+    </div>
+
+    <div class="source-item">
+      <div class="title"><span class="tag tag-p">心理学</span>ゴーレム効果（Golem Effect）</div>
+      <div class="author">Babad, E. Y., Inbar, J., &amp; Rosenthal, R. (1982). "Pygmalion, Galatea, and the Golem: Investigations of Biased and Unbiased Teachers." <em>Journal of Educational Psychology</em>, 74(4), 459&ndash;474.</div>
+      <div class="note">ピグマリオン効果の逆。上司が期待しないと、メンバーは本当にパフォーマンスが下がる（自己成就予言）。「信じる」が科学的に正しいマネジメントの前提である根拠。</div>
+    </div>
+
+    <div class="source-item">
+      <div class="title"><span class="tag tag-p">経営学</span>STARSモデル</div>
+      <div class="author">Watkins, M. (2003). <em>The First 90 Days: Critical Success Strategies for New Leaders at All Levels</em>. Harvard Business Review Press.</div>
+      <div class="note">新任リーダーが最初の90日で成果を出すための戦略フレームワーク。組織のフェーズ（Start-up / Turnaround / Accelerated growth / Realignment / Sustaining success）に応じてアプローチを変える。</div>
+    </div>
+
+    <div class="source-item">
+      <div class="title"><span class="tag tag-e">EVeM</span>急成長を導くマネージャーの型</div>
+      <div class="author">長村禎庸（2023）.『急成長を導くマネージャーの型 &mdash; 地位・権力が通用しない時代の"イーブン"なマネジメント』. クロスメディア・パブリッシング.</div>
+      <div class="note">EVeM（エモ）の60の型の原典。ベンチャー企業向けに書かれたマネジメント技術のカタログ。本プレゼンの「技術層」の基盤。</div>
+    </div>
+
+    <div class="source-item">
+      <div class="title"><span class="tag tag-s">識学</span>リーダーの仮面</div>
+      <div class="author">安藤広大（2021）.『リーダーの仮面 &mdash; 「いちプレーヤー」から「マネジャー」に頭を切り替える思考法』. ダイヤモンド社.</div>
+      <div class="note">識学の基本思想をまとめた書籍。位置の明確化・ルールの絶対性・結果評価の考え方の原典。</div>
+    </div>
+
+    <div class="source-item">
+      <div class="title"><span class="tag tag-i">行動科学</span>坂井風太（Momenter）</div>
+      <div class="author">坂井風太. YouTube / SNS での発信活動. Momenter 代表.</div>
+      <div class="note">行動科学に基づくマネジメント論を発信。ゴーレム効果の実務への応用、「メンバーのパフォーマンスが出ないのはマネージャー側の問題」という自責思考の根拠を提供。</div>
+    </div>
+  </section>
+
+  <!-- ===== 関与頻度の逓減モデル ===== -->
+  <section>
+    <h2 class="h2-evem">&#9632; 新人の関与頻度グラデーション（実践②の補足）</h2>
+    <table>
+      <tr><th>時期</th><th>頻度</th><th>目的</th></tr>
+      <tr><td style="color:var(--igi); font-weight:700;">1ヶ月目</td><td>毎日（週5回）</td><td>共同ワーク。「ちゃんと見てくれる」信頼構築</td></tr>
+      <tr><td style="color:#d97706; font-weight:700;">2ヶ月目</td><td>週2回</td><td>定点確認。自走の余白を作る</td></tr>
+      <tr><td style="color:var(--evem); font-weight:700;">3ヶ月目</td><td>週1回</td><td>トライ。結果でフィードバック</td></tr>
+      <tr><td style="color:var(--shikigaku); font-weight:700;">4ヶ月目〜</td><td>通常サイクル</td><td>お任せ。他メンバーと同じ運用</td></tr>
+    </table>
+    <div class="note-box">
+      最初に密に関わることで信頼を築き、段階的に手を離す。<br>
+      いきなり「任せる」のは放置。信頼が育つ前に手を離すと不安が残る。
+    </div>
+  </section>
+
+  <div class="doc-footer">
+    識学 &times; EVeM ハイブリッドマネジメント &mdash; 若林歯科 &mdash; 2026.3.5<br>
+    作成: 大竹智博
+  </div>
+
+</div>
+
+</body>
+</html>
