@@ -1,0 +1,1142 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>識学 × EVeM ハイブリッドマネジメント</title>
+<style>
+  /* ===== Reset & Base ===== */
+  *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+  :root {
+    --shikigaku: #1a365d;
+    --evem: #065f46;
+    --igi: #c2410c;
+    --bg: #fafaf9;
+    --text: #1c1917;
+    --text-light: #57534e;
+    --accent-light-blue: #dbeafe;
+    --accent-light-green: #d1fae5;
+    --accent-light-orange: #ffedd5;
+    --card-shadow: 0 4px 16px rgba(0,0,0,0.08);
+    --font: "Yu Gothic", "Hiragino Sans", "Noto Sans JP", sans-serif;
+  }
+
+  html, body {
+    width: 100%; height: 100%;
+    overflow: hidden;
+    background: #111;
+    font-family: var(--font);
+  }
+
+  /* ===== Slide Container ===== */
+  #deck {
+    position: relative;
+    width: 100vw; height: 100vh;
+    display: flex; align-items: center; justify-content: center;
+  }
+
+  #slide-scaler {
+    position: absolute;
+    transform-origin: center center;
+  }
+
+  .slide {
+    position: absolute;
+    left: 0; top: 0;
+    width: 960px; height: 540px;
+    background: var(--bg);
+    border-radius: 8px;
+    padding: 48px 56px;
+    display: flex;
+    flex-direction: column;
+    opacity: 0;
+    transform: translateX(60px);
+    transition: opacity 0.5s ease, transform 0.5s ease;
+    pointer-events: none;
+    overflow: hidden;
+  }
+
+  .slide.active {
+    opacity: 1;
+    transform: translateX(0);
+    pointer-events: auto;
+  }
+
+  .slide.exit-left {
+    opacity: 0;
+    transform: translateX(-60px);
+  }
+
+  /* ===== Slide Counter ===== */
+  #counter {
+    position: fixed;
+    bottom: 24px; right: 36px;
+    font-family: var(--font);
+    font-size: 14px;
+    color: #a8a29e;
+    z-index: 100;
+    letter-spacing: 1px;
+    user-select: none;
+  }
+
+  /* ===== Progress Bar ===== */
+  #progress {
+    position: fixed;
+    bottom: 0; left: 0;
+    height: 3px;
+    background: linear-gradient(90deg, var(--shikigaku), var(--evem), var(--igi));
+    transition: width 0.4s ease;
+    z-index: 100;
+  }
+
+  /* ===== Typography ===== */
+  .slide h1 {
+    font-size: 32px;
+    font-weight: 700;
+    color: var(--text);
+    line-height: 1.3;
+    margin-bottom: 8px;
+  }
+
+  .slide h2 {
+    font-size: 22px;
+    font-weight: 700;
+    color: var(--text);
+    line-height: 1.4;
+    margin-bottom: 16px;
+  }
+
+  .slide h3 {
+    font-size: 16px;
+    font-weight: 700;
+    margin-bottom: 8px;
+  }
+
+  .slide p {
+    font-size: 16px;
+    color: var(--text);
+    line-height: 1.7;
+  }
+
+  .slide .subtitle {
+    font-size: 18px;
+    color: var(--text-light);
+    margin-bottom: 4px;
+  }
+
+  .slide .meta {
+    font-size: 14px;
+    color: #a8a29e;
+    margin-top: auto;
+  }
+
+  .slide .label {
+    display: inline-block;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    margin-bottom: 12px;
+  }
+
+  .label-shikigaku { color: var(--shikigaku); }
+  .label-evem { color: var(--evem); }
+  .label-igi { color: var(--igi); }
+
+  /* ===== Cards ===== */
+  .card-row {
+    display: flex;
+    gap: 16px;
+    flex: 1;
+    align-items: stretch;
+  }
+
+  .card {
+    flex: 1;
+    background: #fff;
+    border-radius: 12px;
+    padding: 24px 20px;
+    box-shadow: var(--card-shadow);
+    display: flex;
+    flex-direction: column;
+  }
+
+  .card h3 {
+    font-size: 15px;
+    margin-bottom: 10px;
+  }
+
+  .card p, .card li {
+    font-size: 13px;
+    color: var(--text-light);
+    line-height: 1.7;
+  }
+
+  .card ul {
+    list-style: none;
+    padding: 0;
+  }
+
+  .card ul li::before {
+    content: "・";
+    color: inherit;
+  }
+
+  .card-shikigaku { border-top: 4px solid var(--shikigaku); }
+  .card-evem { border-top: 4px solid var(--evem); }
+  .card-igi { border-top: 4px solid var(--igi); }
+
+  /* ===== Arrow / Pointer ===== */
+  .arrow-down {
+    text-align: center;
+    font-size: 20px;
+    color: var(--igi);
+    margin: 10px 0;
+    font-weight: 700;
+  }
+
+  /* ===== Gap Visual (Slide 3) ===== */
+  .gap-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+  }
+
+  .gap-list li {
+    font-size: 16px;
+    padding: 10px 16px;
+    background: #fff;
+    border-left: 4px solid var(--shikigaku);
+    margin-bottom: 8px;
+    border-radius: 0 8px 8px 0;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+    color: var(--text);
+  }
+
+  .gap-list li span {
+    color: var(--text-light);
+    font-size: 14px;
+  }
+
+  .gap-answer {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-top: 12px;
+    padding: 12px 20px;
+    background: var(--accent-light-green);
+    border-radius: 8px;
+    font-size: 16px;
+    font-weight: 700;
+    color: var(--evem);
+  }
+
+  .gap-answer .arrow-icon {
+    font-size: 20px;
+  }
+
+  /* ===== 3-Layer Diagram (Slide 5) ===== */
+  .layers {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    flex: 1;
+  }
+
+  .layer {
+    flex: 1;
+    border-radius: 12px;
+    padding: 14px 24px;
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    color: #fff;
+  }
+
+  .layer-igi {
+    background: linear-gradient(135deg, #ea580c, #c2410c);
+  }
+
+  .layer-evem {
+    background: linear-gradient(135deg, #059669, #065f46);
+  }
+
+  .layer-shikigaku {
+    background: linear-gradient(135deg, #2563eb, #1a365d);
+  }
+
+  .layer .layer-label {
+    font-size: 13px;
+    font-weight: 700;
+    min-width: 180px;
+    line-height: 1.5;
+  }
+
+  .layer .layer-items {
+    font-size: 12px;
+    opacity: 0.9;
+    line-height: 1.6;
+  }
+
+  .layer-side-label {
+    position: absolute;
+    right: 24px;
+    top: 50%;
+    transform: translateY(-50%);
+    writing-mode: vertical-rl;
+    font-size: 12px;
+    color: var(--text-light);
+    letter-spacing: 4px;
+  }
+
+  /* ===== 6 Principles (Slide 6) ===== */
+  .principles-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 14px;
+    flex: 1;
+  }
+
+  .principle-group {
+    background: #fff;
+    border-radius: 12px;
+    padding: 18px 16px;
+    box-shadow: var(--card-shadow);
+  }
+
+  .principle-group h3 {
+    font-size: 15px;
+    margin-bottom: 12px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .principle-group ul {
+    list-style: none;
+    padding: 0;
+  }
+
+  .principle-group li {
+    font-size: 12.5px;
+    color: var(--text-light);
+    line-height: 1.7;
+    padding: 4px 0;
+    border-bottom: 1px solid #f5f5f4;
+  }
+
+  .principle-group li:last-child { border-bottom: none; }
+
+  .principle-group li .num {
+    display: inline-block;
+    font-size: 10px;
+    font-weight: 700;
+    color: #fff;
+    border-radius: 4px;
+    padding: 1px 6px;
+    margin-right: 6px;
+  }
+
+  .bg-green { background: var(--evem); }
+  .bg-blue { background: var(--shikigaku); }
+  .bg-red { background: #dc2626; }
+
+  /* ===== Cycle Diagram (Slide 7) ===== */
+  .cycle-container {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    justify-content: center;
+    align-items: center;
+    flex: 1;
+    align-content: center;
+  }
+
+  .cycle-step {
+    background: #fff;
+    border-radius: 10px;
+    padding: 10px 14px;
+    box-shadow: var(--card-shadow);
+    font-size: 13px;
+    text-align: center;
+    width: 190px;
+    position: relative;
+  }
+
+  .cycle-step .step-num {
+    display: inline-flex;
+    width: 22px; height: 22px;
+    background: var(--evem);
+    color: #fff;
+    border-radius: 50%;
+    font-size: 11px;
+    font-weight: 700;
+    align-items: center;
+    justify-content: center;
+    margin-right: 6px;
+  }
+
+  .cycle-arrow {
+    font-size: 18px;
+    color: var(--evem);
+    font-weight: 700;
+  }
+
+  .cycle-caption {
+    text-align: center;
+    font-size: 14px;
+    color: var(--evem);
+    font-weight: 700;
+    margin-top: 8px;
+    padding: 8px 16px;
+    background: var(--accent-light-green);
+    border-radius: 8px;
+  }
+
+  /* ===== Timeline (Slide 8) ===== */
+  .timeline-container {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 16px;
+  }
+
+  .timeline-labels {
+    display: flex;
+    justify-content: space-between;
+    font-size: 13px;
+    color: var(--text-light);
+    padding: 0 8px;
+  }
+
+  .timeline-bar {
+    height: 60px;
+    border-radius: 12px;
+    display: flex;
+    overflow: hidden;
+    box-shadow: var(--card-shadow);
+  }
+
+  .timeline-segment {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #fff;
+    font-weight: 700;
+    font-size: 13px;
+    text-align: center;
+    line-height: 1.4;
+  }
+
+  .timeline-bottom {
+    display: flex;
+    gap: 0;
+  }
+
+  .timeline-bottom-item {
+    text-align: center;
+    font-size: 12px;
+    color: var(--text-light);
+    padding: 8px 4px;
+    background: #fff;
+    border-radius: 8px;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.04);
+  }
+
+  .timeline-bottom-item strong {
+    display: block;
+    font-size: 13px;
+    color: var(--text);
+    margin-bottom: 2px;
+  }
+
+  /* ===== Search Box (Slide 9) ===== */
+  .searchbox-flow {
+    display: flex;
+    align-items: stretch;
+    gap: 12px;
+    flex: 1;
+  }
+
+  .sb-step {
+    flex: 1;
+    background: #fff;
+    border-radius: 12px;
+    padding: 18px 16px;
+    box-shadow: var(--card-shadow);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+  }
+
+  .sb-step h3 {
+    font-size: 14px;
+    margin-bottom: 8px;
+  }
+
+  .sb-step p {
+    font-size: 13px;
+    color: var(--text-light);
+    line-height: 1.7;
+  }
+
+  .sb-arrow {
+    display: flex;
+    align-items: center;
+    font-size: 22px;
+    color: var(--evem);
+    font-weight: 700;
+  }
+
+  /* ===== Work Slide (Slide 10) ===== */
+  .work-template {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    justify-content: center;
+  }
+
+  .work-field {
+    background: #fff;
+    border-radius: 12px;
+    padding: 16px 24px;
+    box-shadow: var(--card-shadow);
+    display: flex;
+    align-items: baseline;
+    gap: 12px;
+  }
+
+  .work-field .axis-label {
+    font-size: 15px;
+    font-weight: 700;
+    min-width: 80px;
+  }
+
+  .work-field .axis-line {
+    flex: 1;
+    border-bottom: 2px dashed #d6d3d1;
+    height: 1px;
+    margin-bottom: -4px;
+  }
+
+  .work-field .axis-hint {
+    font-size: 13px;
+    color: #a8a29e;
+  }
+
+  .axis-social { color: var(--igi); }
+  .axis-market { color: var(--evem); }
+  .axis-self { color: var(--shikigaku); }
+
+  /* ===== Final Slide ===== */
+  .final-center {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    gap: 20px;
+  }
+
+  .final-center .main-msg {
+    font-size: 30px;
+    font-weight: 700;
+    color: var(--text);
+    line-height: 1.5;
+  }
+
+  .final-center .sub-msg {
+    font-size: 16px;
+    color: var(--text-light);
+    line-height: 1.8;
+    max-width: 600px;
+  }
+
+  .final-center .bottom-msg {
+    font-size: 18px;
+    font-weight: 700;
+    color: var(--evem);
+    margin-top: 8px;
+  }
+
+  /* ===== Title Slide ===== */
+  .title-slide {
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+  }
+
+  .title-slide h1 {
+    font-size: 34px;
+    margin-bottom: 12px;
+  }
+
+  .title-slide .subtitle {
+    font-size: 20px;
+    font-style: italic;
+    color: var(--igi);
+    margin-bottom: 24px;
+  }
+
+  .title-slide .meta {
+    font-size: 15px;
+    color: var(--text-light);
+    margin-top: 16px;
+  }
+
+  .divider-line {
+    width: 60px;
+    height: 3px;
+    background: linear-gradient(90deg, var(--shikigaku), var(--evem));
+    border-radius: 2px;
+    margin: 8px auto;
+  }
+
+  /* ===== Two Column (Slide 4) ===== */
+  .two-col {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+    flex: 1;
+  }
+
+  .col-box {
+    background: #fff;
+    border-radius: 12px;
+    padding: 22px 20px;
+    box-shadow: var(--card-shadow);
+  }
+
+  .col-box h3 {
+    margin-bottom: 12px;
+  }
+
+  .col-box p, .col-box li {
+    font-size: 14px;
+    color: var(--text-light);
+    line-height: 1.8;
+  }
+
+  .col-box ul {
+    list-style: none;
+    padding: 0;
+  }
+
+  .col-box ul li { padding: 3px 0; }
+
+  .bottom-banner {
+    margin-top: 12px;
+    padding: 10px 20px;
+    background: var(--accent-light-green);
+    border-radius: 8px;
+    text-align: center;
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--evem);
+  }
+
+  /* ===== Keyboard Hint ===== */
+  #hint {
+    position: fixed;
+    bottom: 24px; left: 36px;
+    font-family: var(--font);
+    font-size: 12px;
+    color: #a8a29e;
+    z-index: 100;
+    user-select: none;
+    opacity: 0.7;
+    transition: opacity 0.3s;
+  }
+
+  #hint:hover { opacity: 1; }
+
+  kbd {
+    display: inline-block;
+    background: #e7e5e4;
+    border-radius: 4px;
+    padding: 1px 6px;
+    font-family: var(--font);
+    font-size: 11px;
+    color: var(--text-light);
+    border: 1px solid #d6d3d1;
+    margin: 0 2px;
+  }
+
+  /* ===== Reference Tag ===== */
+  .ref-tag {
+    position: absolute;
+    bottom: 12px;
+    left: 56px;
+    font-size: 11px;
+    color: #a8a29e;
+    letter-spacing: 0.3px;
+    line-height: 1.5;
+  }
+
+  .ref-tag span {
+    display: inline-block;
+    background: #f5f5f4;
+    border: 1px solid #e7e5e4;
+    border-radius: 4px;
+    padding: 1px 6px;
+    margin: 0 2px;
+    font-size: 10px;
+    font-weight: 700;
+    color: var(--text-light);
+  }
+
+  .ref-tag span.ref-e { color: var(--evem); border-color: #d1fae5; background: #ecfdf5; }
+  .ref-tag span.ref-s { color: var(--shikigaku); border-color: #dbeafe; background: #eff6ff; }
+  .ref-tag span.ref-p { color: #7c3aed; border-color: #ede9fe; background: #f5f3ff; }
+
+  /* ===== Print ===== */
+  @media print {
+    html, body {
+      width: auto; height: auto;
+      overflow: visible;
+      background: #fff;
+    }
+    #deck { display: block; width: auto; height: auto; }
+    #slide-scaler {
+      position: static !important;
+      transform: none !important;
+      width: auto !important;
+      height: auto !important;
+    }
+    .slide {
+      position: relative !important;
+      opacity: 1 !important;
+      transform: none !important;
+      pointer-events: auto !important;
+      page-break-after: always;
+      page-break-inside: avoid;
+      width: 960px; height: 540px;
+      margin: 0 auto;
+      box-shadow: none;
+      border: 1px solid #e7e5e4;
+    }
+    #counter, #progress, #hint { display: none; }
+  }
+
+  @page {
+    size: 960px 540px landscape;
+    margin: 0;
+  }
+</style>
+</head>
+<body>
+
+<div id="deck">
+<div id="slide-scaler">
+
+  <!-- ===== SLIDE 1: Title / Introduction ===== -->
+  <div class="slide title-slide active" data-slide="1">
+    <span class="label label-shikigaku" style="font-size:12px; letter-spacing:2px;">MANAGEMENT PRESENTATION</span>
+    <h1>識学 &times; EVeM<br>ハイブリッドマネジメント</h1>
+    <p class="subtitle">理論は道具であって信仰じゃない</p>
+    <div class="divider-line"></div>
+    <p class="meta">大竹智博 &mdash; 2026.3.5</p>
+  </div>
+
+  <!-- ===== SLIDE 2: 識学の復習 ===== -->
+  <div class="slide" data-slide="2">
+    <span class="label label-shikigaku">REVIEW</span>
+    <h2>識学の3本柱</h2>
+    <div class="card-row">
+      <div class="card card-shikigaku">
+        <h3 style="color:var(--shikigaku);">位置の明確化</h3>
+        <p>誰が決める人か迷わない。<br>指揮命令系統が組織の安全を守る。</p>
+      </div>
+      <div class="card card-shikigaku">
+        <h3 style="color:var(--shikigaku);">ルールの絶対性</h3>
+        <p>例外なし。<br>感染対策・医療安全は<br>「守らなければ事故」の領域。</p>
+      </div>
+      <div class="card card-shikigaku">
+        <h3 style="color:var(--shikigaku);">結果評価の客観性</h3>
+        <p>可/不可の二択。<br>感情に左右されない<br>公平な評価基準。</p>
+      </div>
+    </div>
+    <p class="meta" style="text-align:center; margin-top:12px; color:var(--text-light);">若林歯科で既に機能している部分 &mdash; これは変えない</p>
+    <div class="ref-tag"><span class="ref-s">識学</span> リーダーの仮面 Ch.1-3</div>
+  </div>
+
+  <!-- ===== SLIDE 3: 識学だけでは足りないもの ===== -->
+  <div class="slide" data-slide="3">
+    <span class="label label-shikigaku">GAP</span>
+    <h2>識学だけでは足りないもの &mdash; How の空白</h2>
+    <ul class="gap-list" style="margin-top:4px;">
+      <li>「<strong>任せろ</strong>」<span> &rarr; 何を？ どこまで？ どう任せる？</span></li>
+      <li>「<strong>結果で評価しろ</strong>」<span> &rarr; 結果を出せるように、どう育てる？</span></li>
+      <li>「<strong>位置を守れ</strong>」<span> &rarr; マネージャーとして日々何をする？</span></li>
+    </ul>
+    <div class="gap-answer">
+      <span class="arrow-icon">&rarr;</span>
+      <span>この「How の空白」を EVeM が埋める</span>
+    </div>
+  </div>
+
+  <!-- ===== SLIDE 4: EVeM + Golem Effect ===== -->
+  <div class="slide" data-slide="4">
+    <span class="label label-evem">INTRODUCTION</span>
+    <h2>EVeM &amp; ゴーレム効果</h2>
+    <div class="two-col">
+      <div class="col-box" style="border-top:4px solid var(--evem);">
+        <h3 style="color:var(--evem);">EVeM = 60の型</h3>
+        <p>マネジメント技術のカタログ。</p>
+        <ul>
+          <li>状況別に引き出せる</li>
+          <li>全部覚えなくていい</li>
+          <li>困ったときに参照すればいい</li>
+        </ul>
+        <p style="margin-top:12px; font-weight:700; color:var(--evem); font-size:13px;">「どうやるか」の技術集</p>
+      </div>
+      <div class="col-box" style="border-top:4px solid var(--igi);">
+        <h3 style="color:var(--igi);">ゴーレム効果 / ピグマリオン効果</h3>
+        <p><strong style="color:#dc2626;">期待しない</strong> &rarr; 部下は本当にダメになる</p>
+        <p><strong style="color:var(--evem);">期待する</strong> &rarr; 部下は本当に伸びる</p>
+        <p style="margin-top:12px; font-size:13px; color:var(--text-light);">心理学の実証研究で証明済み。</p>
+        <p style="font-weight:700; color:var(--igi); font-size:13px; margin-top:6px;">「信じる」は精神論ではなく科学</p>
+      </div>
+    </div>
+    <div class="bottom-banner">「なぜそうすべきか」の根拠 &times; 「どうやるか」の技術 = ハイブリッド</div>
+    <div class="ref-tag"><span class="ref-e">EVeM</span> Ch.1-10（60の型） <span class="ref-p">心理学</span> Rosenthal 1968 / Babad 1982</div>
+  </div>
+
+  <!-- ===== SLIDE 5: 3-Layer Structure ===== -->
+  <div class="slide" data-slide="5">
+    <span class="label label-igi">FRAMEWORK</span>
+    <h2>マネジメントの3層構造</h2>
+    <div class="layers" style="margin-top:4px;">
+      <div class="layer layer-igi">
+        <div class="layer-label">【意義層】<br>エネルギーの源泉</div>
+        <div class="layer-items">意義の3軸（社会・市場・自者） / モメンタム / Will活用 / 評価ギフト</div>
+      </div>
+      <div class="layer layer-evem">
+        <div class="layer-label">【EVeM層】<br>技術と成長のエンジン</div>
+        <div class="layer-items">60の型 / 関与方針4象限 / 育成設計 / GPKaフレームワーク</div>
+      </div>
+      <div class="layer layer-shikigaku">
+        <div class="layer-label">【識学層】<br>秩序と基準の土台</div>
+        <div class="layer-items">位置の明確化 / ルールの絶対性 / 可/不可評価 / 結果責任</div>
+      </div>
+    </div>
+    <div style="display:flex; justify-content:space-between; margin-top:8px; font-size:12px; color:var(--text-light); padding:0 8px;">
+      <span>&uarr; エネルギー（人を動かす力）</span>
+      <span>&darr; 秩序（組織を守る力）</span>
+    </div>
+    <div class="ref-tag"><span class="ref-e">EVeM</span> 型12 意義 / 型19 GPKa / 型22 関与方針 / 型37 ルール</div>
+  </div>
+
+  <!-- ===== SLIDE 6: 6 Principles ===== -->
+  <div class="slide" data-slide="6">
+    <span class="label" style="color:var(--text);">PRINCIPLES</span>
+    <h2>大竹の6原則 &mdash; テクニックの前に</h2>
+    <div class="principles-grid">
+      <div class="principle-group" style="border-top:4px solid var(--evem);">
+        <h3><span style="color:var(--evem);">&#9632;</span> 信じる</h3>
+        <ul>
+          <li><span class="num bg-green">#20</span>みんな頑張ろうとしている</li>
+          <li><span class="num bg-green">#19</span>どんな人にも才能がある</li>
+        </ul>
+        <p style="font-size:11px; color:var(--text-light); margin-top:10px; line-height:1.6;">パフォーマンスが出ていないなら、まず自分の環境設計・アサインを疑う</p>
+      </div>
+      <div class="principle-group" style="border-top:4px solid var(--shikigaku);">
+        <h3><span style="color:var(--shikigaku);">&#9632;</span> 自分で語る</h3>
+        <ul>
+          <li><span class="num bg-blue">#9</span>伝書鳩にならない</li>
+          <li><span class="num bg-blue">#11</span>成果に繋がることだけ指摘</li>
+        </ul>
+        <p style="font-size:11px; color:var(--text-light); margin-top:10px; line-height:1.6;">「理事長が言ってるから」は禁句。自分の言葉で伝える</p>
+      </div>
+      <div class="principle-group" style="border-top:4px solid #dc2626;">
+        <h3><span style="color:#dc2626;">&#9632;</span> 絶対やらない</h3>
+        <ul>
+          <li><span class="num bg-red">#26</span>陰口を言わない</li>
+          <li><span class="num bg-red">#34</span>情報マウント取らない</li>
+          <li><span class="num bg-red">#33</span>任せたことをひっくり返さない</li>
+        </ul>
+      </div>
+    </div>
+    <div class="ref-tag"><span class="ref-e">EVeM</span> Ch.11 心得 #9, #11, #19, #20, #26, #33, #34 <span class="ref-p">心理学</span> Bandura 1977 / Dweck 2006</div>
+  </div>
+
+  <!-- ===== SLIDE 7: Weekly Cycle ===== -->
+  <div class="slide" data-slide="7">
+    <span class="label label-evem">PRACTICE 1</span>
+    <h2>実践①: 週次サイクル</h2>
+    <div class="cycle-container">
+      <div class="cycle-step"><span class="step-num">1</span>組織課題の把握</div>
+      <span class="cycle-arrow">&rarr;</span>
+      <div class="cycle-step"><span class="step-num">2</span>理想状態の設定</div>
+      <span class="cycle-arrow">&rarr;</span>
+      <div class="cycle-step"><span class="step-num">3</span>チーム役割定義</div>
+      <span class="cycle-arrow">&rarr;</span>
+      <div class="cycle-step"><span class="step-num">4</span>個人目標設定</div>
+      <span class="cycle-arrow" style="visibility:hidden;">&rarr;</span>
+      <div class="cycle-step"><span class="step-num">5</span>GAP 特定</div>
+      <span class="cycle-arrow">&larr;</span>
+      <div class="cycle-step" style="border:2px solid var(--igi);"><span class="step-num" style="background:var(--igi);">8</span>状況変化で再設定</div>
+      <span class="cycle-arrow">&larr;</span>
+      <div class="cycle-step"><span class="step-num">7</span>週次報告</div>
+      <span class="cycle-arrow">&larr;</span>
+      <div class="cycle-step"><span class="step-num">6</span>アクション設計</div>
+    </div>
+    <div class="cycle-caption">「これ、実は EVeM の GPKa フレームワークだった」</div>
+    <div class="ref-tag"><span class="ref-e">EVeM</span> 型19 GPKa / 型8 状態目標 <span class="ref-p">教育学</span> Kolb 1984 経験学習</div>
+  </div>
+
+  <!-- ===== SLIDE 8: Onboarding Frequency ===== -->
+  <div class="slide" data-slide="8">
+    <span class="label label-evem">PRACTICE 2</span>
+    <h2>実践②: 新人の関与頻度グラデーション</h2>
+    <div class="timeline-container">
+      <div class="timeline-labels">
+        <span style="font-weight:700; color:var(--igi);">関与度 高</span>
+        <span>&rarr;&rarr;&rarr;</span>
+        <span style="font-weight:700; color:var(--evem);">関与度 低</span>
+      </div>
+      <div class="timeline-bar">
+        <div class="timeline-segment" style="flex:3; background:linear-gradient(135deg, #ea580c, #dc2626);">
+          1ヶ月目<br><span style="font-size:11px; font-weight:400;">毎日（週5回）</span>
+        </div>
+        <div class="timeline-segment" style="flex:2; background:linear-gradient(135deg, #d97706, #ea580c);">
+          2ヶ月目<br><span style="font-size:11px; font-weight:400;">週2回</span>
+        </div>
+        <div class="timeline-segment" style="flex:2; background:linear-gradient(135deg, #059669, #0d9488);">
+          3ヶ月目<br><span style="font-size:11px; font-weight:400;">週1回</span>
+        </div>
+        <div class="timeline-segment" style="flex:3; background:linear-gradient(135deg, #1a365d, #2563eb);">
+          4ヶ月目〜<br><span style="font-size:11px; font-weight:400;">通常サイクル</span>
+        </div>
+      </div>
+      <div style="display:grid; grid-template-columns:3fr 2fr 2fr 3fr; gap:4px;">
+        <div class="timeline-bottom-item">
+          <strong style="color:var(--igi);">共同ワーク</strong>
+          毎日カリキュラム確認<br>「ちゃんと見てくれる」信頼構築
+        </div>
+        <div class="timeline-bottom-item">
+          <strong style="color:#d97706;">定点確認</strong>
+          自走の余白を作る
+        </div>
+        <div class="timeline-bottom-item">
+          <strong style="color:var(--evem);">トライ</strong>
+          結果でフィードバック
+        </div>
+        <div class="timeline-bottom-item">
+          <strong style="color:var(--shikigaku);">お任せ</strong>
+          他メンバーと同じサイクル
+        </div>
+      </div>
+    </div>
+    <div class="ref-tag"><span class="ref-e">EVeM</span> 型22 関与方針 / 型23 メンバータイプ / 型5 キャッチアップ</div>
+  </div>
+
+  <!-- ===== SLIDE 9: Issue Sorting ===== -->
+  <div class="slide" data-slide="9">
+    <span class="label label-evem">PRACTICE 3</span>
+    <h2>実践③: 課題の仕分け &mdash; マネ型サーチBox</h2>
+    <div class="searchbox-flow">
+      <div class="sb-step" style="border-left:4px solid var(--igi); flex:0.8;">
+        <h3 style="color:var(--igi);">課題が発生</h3>
+        <p>すぐ動かない。<br>まずシートに書く。</p>
+      </div>
+      <div class="sb-arrow">&rarr;</div>
+      <div class="sb-step" style="border-left:4px solid var(--evem);">
+        <h3 style="color:var(--evem);">シートに記入</h3>
+        <p style="font-size:12px;">誰が &rarr; 何が起きたか &rarr; チームへの影響 &rarr; 自責要因 &rarr; 活用する型</p>
+      </div>
+      <div class="sb-arrow">&rarr;</div>
+      <div class="sb-step" style="background:var(--accent-light-green); border:2px solid var(--evem);">
+        <h3 style="color:var(--evem);">2つの発見</h3>
+        <p style="margin-bottom:8px;"><strong style="color:var(--igi);">&#10102;</strong> 「自分のせいだった」<br><span style="font-size:12px; color:var(--text-light);">自責要因がどんどん増える</span></p>
+        <p><strong style="color:var(--shikigaku);">&#10103;</strong> 「放置でOK」<br><span style="font-size:12px; color:var(--text-light);">影響ゼロの課題が意外と多い</span></p>
+      </div>
+      <div class="sb-arrow">&rarr;</div>
+      <div class="sb-step" style="border-left:4px solid var(--shikigaku); flex:0.7;">
+        <h3 style="color:var(--shikigaku);">集中</h3>
+        <p style="font-weight:700;">本当にやるべきことだけに集中する</p>
+      </div>
+    </div>
+    <div class="ref-tag"><span class="ref-e">EVeM</span> 型19 GPKa / 型34 業務整理 / 型8 状態目標 / 型46 事実の記録</div>
+  </div>
+
+  <!-- ===== SLIDE 10: Workshop ===== -->
+  <div class="slide" data-slide="10">
+    <span class="label label-evem">WORKSHOP</span>
+    <h2>ワーク: マネ型サーチBox を体験してみよう</h2>
+    <p style="font-size:14px; color:var(--text-light); margin-bottom:12px;">最近あった「困ったこと」を1つ思い浮かべて、順番に埋めてみてください</p>
+    <div style="display:flex; flex-direction:column; gap:6px; flex:1;">
+      <div class="work-field">
+        <span class="axis-label" style="color:var(--igi); min-width:120px;">&#10102; 誰が</span>
+        <div class="axis-line"></div>
+        <span class="axis-hint">関係者は？</span>
+      </div>
+      <div class="work-field">
+        <span class="axis-label" style="color:var(--igi); min-width:120px;">&#10103; 何が起きた</span>
+        <div class="axis-line"></div>
+        <span class="axis-hint">事実だけ</span>
+      </div>
+      <div class="work-field">
+        <span class="axis-label" style="color:var(--evem); min-width:120px;">&#10104; チーム影響</span>
+        <div class="axis-line"></div>
+        <span class="axis-hint">0なら放置OK</span>
+      </div>
+      <div class="work-field">
+        <span class="axis-label" style="color:var(--shikigaku); min-width:120px;">&#10105; 自責要因</span>
+        <div class="axis-line"></div>
+        <span class="axis-hint">自分の責任は？</span>
+      </div>
+      <div class="work-field">
+        <span class="axis-label" style="color:var(--evem); min-width:120px;">&#10106; 使う型</span>
+        <div class="axis-line"></div>
+        <span class="axis-hint">EVeM 60型から</span>
+      </div>
+    </div>
+    <p style="text-align:center; font-size:13px; color:var(--evem); font-weight:700; margin-top:6px;">スマホでワークシートを開いて3分で記入 &rarr; 一緒に振り返り</p>
+    <div class="ref-tag"><span class="ref-e">EVeM</span> 型19 GPKa / 型34 業務整理</div>
+  </div>
+
+  <!-- ===== SLIDE 11: Core Message ===== -->
+  <div class="slide" data-slide="11">
+    <div class="final-center">
+      <div class="divider-line" style="width:40px; margin:0 auto 8px;"></div>
+      <p class="main-msg">メンバーを信じて任せること。</p>
+      <p class="sub-msg">そのために識学で土台を作り、<br>EVeM の型で任せ方を設計する。</p>
+      <p class="bottom-msg">道具は揃ってる。あとは使うだけ。</p>
+      <div class="divider-line" style="width:40px; margin:16px auto 0;"></div>
+    </div>
+  </div>
+
+</div><!-- /slide-scaler -->
+</div><!-- /deck -->
+
+<!-- Slide Counter -->
+<div id="counter">1 / 11</div>
+
+<!-- Progress Bar -->
+<div id="progress" style="width:9.09%;"></div>
+
+<!-- Keyboard Hint -->
+<div id="hint">
+  <kbd>&larr;</kbd> <kbd>&rarr;</kbd> ナビゲーション &nbsp;&middot;&nbsp; <kbd>F</kbd> フルスクリーン &nbsp;&middot;&nbsp; クリックで次へ
+</div>
+
+<script>
+(function() {
+  'use strict';
+
+  const slides = document.querySelectorAll('.slide');
+  const scaler = document.getElementById('slide-scaler');
+  const counter = document.getElementById('counter');
+  const progress = document.getElementById('progress');
+  const total = slides.length;
+  let current = 0;
+
+  // Scale the scaler container to fit viewport
+  function scaleSlides() {
+    const vw = window.innerWidth;
+    const vh = window.innerHeight;
+    const scaleX = vw / 960;
+    const scaleY = vh / 540;
+    const scale = Math.min(scaleX, scaleY, 2);
+    scaler.style.width = '960px';
+    scaler.style.height = '540px';
+    scaler.style.transform = `scale(${scale})`;
+  }
+
+  function goTo(n) {
+    if (n < 0 || n >= total || n === current) return;
+    const dir = n > current ? 1 : -1;
+
+    // Remove all transition classes
+    slides.forEach(s => {
+      s.classList.remove('active', 'exit-left');
+      s.style.transition = 'none';
+    });
+
+    // Previous slide exits
+    if (dir > 0) {
+      slides[current].classList.add('exit-left');
+    }
+
+    // Force reflow
+    void slides[n].offsetWidth;
+
+    // Re-enable transition
+    slides.forEach(s => {
+      s.style.transition = '';
+    });
+
+    slides[n].classList.add('active');
+    current = n;
+
+    counter.textContent = (current + 1) + ' / ' + total;
+    progress.style.width = ((current + 1) / total * 100) + '%';
+    scaleSlides();
+  }
+
+  function next() { goTo(current + 1); }
+  function prev() { goTo(current - 1); }
+
+  // Keyboard navigation
+  document.addEventListener('keydown', function(e) {
+    if (e.key === 'ArrowRight' || e.key === 'ArrowDown' || e.key === ' ') {
+      e.preventDefault();
+      next();
+    } else if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') {
+      e.preventDefault();
+      prev();
+    } else if (e.key === 'f' || e.key === 'F') {
+      e.preventDefault();
+      if (!document.fullscreenElement) {
+        document.documentElement.requestFullscreen().catch(() => {});
+      } else {
+        document.exitFullscreen().catch(() => {});
+      }
+    } else if (e.key === 'Home') {
+      e.preventDefault();
+      goTo(0);
+    } else if (e.key === 'End') {
+      e.preventDefault();
+      goTo(total - 1);
+    }
+  });
+
+  // Click to advance
+  document.getElementById('deck').addEventListener('click', function(e) {
+    if (e.target.closest('#hint') || e.target.closest('#counter')) return;
+    // Click on left 20% = previous, otherwise next
+    const rect = this.getBoundingClientRect();
+    const x = e.clientX - rect.left;
+    if (x < rect.width * 0.2) {
+      prev();
+    } else {
+      next();
+    }
+  });
+
+  // Touch swipe support
+  let touchStartX = 0;
+  document.addEventListener('touchstart', function(e) {
+    touchStartX = e.changedTouches[0].screenX;
+  }, { passive: true });
+
+  document.addEventListener('touchend', function(e) {
+    const dx = e.changedTouches[0].screenX - touchStartX;
+    if (Math.abs(dx) > 50) {
+      dx < 0 ? next() : prev();
+    }
+  }, { passive: true });
+
+  // Resize
+  window.addEventListener('resize', scaleSlides);
+  scaleSlides();
+})();
+</script>
+
+</body>
+</html>
